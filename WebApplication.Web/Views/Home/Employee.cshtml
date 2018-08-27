@@ -1,0 +1,345 @@
+﻿@model IList<WebApplication.Web.Models.Account.Report>
+@{
+    ViewData["Title"] = "Employee Portal";
+}
+
+<h2 id="employee-title">Active Reports</h2>
+<p id="employee-welcome">There is work to be done!</p>
+<h3 style="text-align: center; color: aliceblue;">Table legend:</h3>
+
+@*here is a legend for the table*@
+<div class="legend-container">
+    <div>
+        <ul style="color: aliceblue;">
+            Severity:
+            <li><strong style="color: green;">Green</strong> is not bad</li>
+            <li><strong style="color: orange;">Orange</strong> is kind of bad</li>
+            <li><strong style="color: red;">Red</strong> is impending doom to anyone who drives over it</li>
+        </ul>
+    </div>
+    <div>
+        <ul style="color: aliceblue;">
+            Status:
+            <li><strong style="color:red;">Red</strong> is reported</li>
+            <li><strong style="color:orange;">Orange</strong> is inspected</li>
+            <li><strong style="color: blue">Blue</strong> is scheduled for repair</li>
+            <li><strong style="color:green;">Green</strong> is repaired</li>
+        </ul>
+    </div>
+</div>
+<br />
+<hr />
+
+@*this input field allows the user to search based on the report number (starts with CLE)*@
+<div class="container-fluid">
+    <input class="form-control" id="myInput" type="text" placeholder="Search..">
+</div>
+<br>
+
+@*this is the table that displays ALL potholes in the database*@
+<div class="container-fluid">
+    <table id="pothole-table" class="table table-bordered table-sm table-responsive" cellspacing="0" width="100%" style="color: white;">
+        <thead>
+            <tr>
+                <th class="th-sm" style="text-align: center;">
+                    Report ID#
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Assigned To:
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th id="th-lat-long" class="th-sm" style="text-align: center;">
+                    Location
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th id="th-date-created" class="th-sm" style="text-align: center;">
+                    Date Created
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th id="th-report-count" class="th-sm" style="text-align: center;">
+                    Report Count
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Severity
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Status
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+            </tr>
+        </thead>
+        <tbody id="table-data">
+            @foreach (WebApplication.Web.Models.Account.Report report in Model)
+            {
+                <tr>
+                    <td style="text-align: center;"><button data-target="#employee-modal" data-toggle="modal" onclick="potholeMap(@report.Lattitude, @report.Longitude)" id="pothole@(report.Id)">@report.ReportNumber</button></td>
+
+                    @if (report.AssignedEmployee != 0)
+                    {
+                        if (report.AssignedEmployee == (int)ViewData["currentUserID"])
+                        {
+                            <td style="text-align: center;"><button disabled style="background-color:#65f442;" id="assignedemployee(@report.Id)">Assigned to You!</button></td>
+
+                        }
+                        else
+                        {
+                            <td style="text-align: center;">Worker #@report.AssignedEmployee</td>
+
+                        }
+                    }
+                    else
+                    {
+                        <td style="text-align: center;"><button onClick="assignEmployee(@report.Id);window.location.reload(true);" id="assignedemployee(@report.Id)">Check-Out Ticket</button></td>
+                    }
+
+                    <td class="table-lat-long" style="text-align: center;">@report.Lattitude,  @report.Longitude</td>
+                    <td class="table-date-created" style="text-align: center;">@report.DateCreated</td>
+                    <td class="table-report-count" style="text-align: center;">@report.ReportCount</td>
+
+                    @if (report.Severity == 3)
+                    {
+                        <td style="background-color: red;"></td>
+                    }
+                    else if (report.Severity == 2)
+                    {
+                        <td style="background-color: orange;"></td>
+                    }
+                    else
+                    {
+                        <td style="background-color: green;"></td>
+                    }
+
+                    @if (report.Status == 4)
+                    {
+                        <td style="background-color: green;"></td>
+                    }
+                    else if (report.Status == 3)
+                    {
+                        <td style="background-color: blue;"></td>
+                    }
+                    else if (report.Status == 2)
+                    {
+                        <td style="background-color: orange;"></td>
+                    }
+                    else
+                    {
+                        <td style="background-color: red;"></td>
+                    }
+                </tr>
+
+
+
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            let value = $(this).val().toLowerCase();
+            $("#table-data tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+
+@{
+    System.Globalization.CultureInfo culture = new System.Globalization.CultureInfo("ja-JP");
+}
+
+@foreach (WebApplication.Web.Models.Account.Report report in Model)
+{
+    //Report cannot be marked as repaired before it is inspected
+    string minRepairDate = report.DateInspected.ToString("d", culture).Replace('/', '-');
+    //Report cannot be marked as inspected before it has been created
+    string minInspectDate = report.DateCreated.ToString("d", culture).Replace('/', '-');
+
+
+    <script>
+            document.querySelector('#pothole@(report.Id)').addEventListener('click', function () {
+                $('#report-id', $('#employee-modal')).val(@report.Id);
+
+      @if (report.AssignedEmployee == 0 ||
+     report.AssignedEmployee == (int)ViewData["currentUserID"])
+      {
+          //If the employee clicks on a report id, show the update button, then hide it after the modal is closed
+                 <text>
+                $('#update-btn').css('display', 'block');
+                $('#employee-modal').on('hidden.bs.modal', () => {
+                    $('#update-btn').css('display', 'none');
+                });
+                 </text>
+                //If it hasn't been inspected, minnimum value should be today
+                @if (report.DateInspected == System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                {
+                  <text>
+                   $('#dateinspected', $('#employee-modal')).val('');
+                   document.querySelector('#dateinspected').setAttribute("min", '@DateTime.Today.ToString("d", culture).Replace('/', '-')');
+
+                  </text>
+                }
+                 //Otherwise, minnimum value should be the last recorded date of inspection
+                 else
+                {
+                  <text>
+                   $('#dateinspected', $('#employee-modal')).val('@report.DateInspected.ToString("d", culture).Replace('/', '-')');
+                   document.querySelector('#dateinspected').setAttribute("min", '@minRepairDate');
+                  </text>
+                }
+
+
+                  //If it hasn't been repaired, minnimum value should be the date of inspection
+                @if (report.DateRepaired == System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                {
+                        //If it hasn't been inspected yet, wait for the user to enter a date
+                     if (report.DateInspected == System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                    {
+                            //And set said date as the minnimum
+                         <text>
+                        document.querySelector('#daterepaired').readOnly = true;
+                        $('#dateinspected').change((event) => {
+
+                            let newMinVal = event.currentTarget.value;
+                            if (event.currentTarget.value !== '') {
+                                document.querySelector('#daterepaired').readOnly = false;
+                                document.querySelector('#daterepaired').setAttribute("min", newMinVal);
+
+                            } else {
+                                document.querySelector('#daterepaired').readOnly = true;
+                            }
+                        });
+                         </text>
+
+                    }
+                       <text>
+                  $('#daterepaired', $('#employee-modal')).val('');
+                  document.querySelector('#daterepaired').setAttribute("min", '@minRepairDate');
+                       </text>
+                }
+                 //Otherwise, minnimum value should be last recorded date of repair
+                 else
+                {
+                  <text>
+                  $('#daterepaired', $('#employee-modal')).val('@report.DateRepaired.ToString("d", culture).Replace('/', '-')');
+                  document.querySelector('#daterepaired').setAttribute("min", '@report.DateRepaired.ToString("d", culture).Replace('/', '-')');
+                  </text>
+                }
+
+      }
+      //If a user clicks on a report that is not registered to them, make all fields read-only
+      else
+      {
+                @if (report.DateInspected == System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                 {
+                   <text>
+                    $('#dateinspected', $('#employee-modal')).val('');
+                    document.querySelector('#dateinspected').readOnly = true;
+
+                   </text>
+                 }
+                  else
+                 {
+                   <text>
+                    $('#dateinspected', $('#employee-modal')).val('@report.DateInspected.ToString("d", culture).Replace('/', '-')');
+                    document.querySelector('#dateinspected').readOnly = true;
+                   </text>
+                 }
+
+                 @if (report.DateRepaired == System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                 {
+                   <text>
+
+                   $('#daterepaired', $('#employee-modal')).val('');
+                document.querySelector('#daterepaired').readOnly = true;
+                   </text>
+                 }
+                  else
+                 {
+                   <text>
+                   $('#daterepaired', $('#employee-modal')).val('@report.DateRepaired.ToString("d", culture).Replace('/', '-')');
+                   document.querySelector('#daterepaired').readOnly = true;
+                   </text>
+                 }
+      }
+
+                $('#description', $('#employee-modal')).html('@report.Description');
+                $('#status', $('#employee-modal')).val(@report.Status);
+                $('#severity', $('#employee-modal')).val(@report.Severity);
+
+                document.getElementById('assignedemployee(@report.Id)').addEventListener('click', function () {
+
+                  var button = document.getElementById('assignedemployee(@report.Id)');
+                  button.style.background = '#65f442';
+                  button.textContent = "Assigned to You!";
+                });
+            });
+
+    </script>
+
+}
+
+
+@*this is the modal that appears when a user clicks on the reportnumber button. allows the user to change data for single pothole*@
+<div class="container-fluid">
+    <div class="modal fade" id="employee-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="ReportSaved">There is work to be done!</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="padding-bottom: 30px;">
+                        <div id="map"></div>
+                    </div>
+                    <script>
+
+                        function potholeMap(lat, lng) {
+
+                            let pothole = { lat, lng };
+                            let markerimage = '/images/constructioncone2.png';
+                            let map = new google.maps.Map(
+                                document.getElementById('map'),
+                                {
+                                    zoom: 16,
+                                    center: pothole,
+                                    styles: [
+                                        {
+                                            "featureType": "poi",
+                                            "stylers": [
+                                                { "visibility": "off" }
+                                            ]
+                                        }
+                                    ]
+                                });
+
+                            let marker = new google.maps.Marker({ position: pothole, icon: markerimage, map: map });
+
+                        }
+                    </script>
+
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbeqY7Px86Yip_ibuSnWdVnScfdE2NPQA&"
+                            async defer></script>
+                    <form method="post">
+                        <p style="display:none;" id="report-id"></p>
+                        <p><span style="font-weight:bold">Status:  </span><input min="1" max="4" type="number" id="status" style="border: none; color: black;" /></p>
+                        <p><span style="font-weight:bold">Severity:  </span><input min="1" max="3" type="number" id="severity" style="border: none; color: black;" /></p>
+                        <p><span style="font-weight: bold">Date Inspected:  </span><input type="date" id="dateinspected" style="border: none; color: black;" /></p>
+                        <p><span style="font-weight: bold">Date Repaired:  </span> <input type="date" id="daterepaired" style="border: none; color: black;" /></p>
+                        <p><span style="font-weight: bold">Inspection/Repair Notes</span> <textarea id="description" style="border: none; color: black; margin: 0px; width: 515px; height: 157px;"></textarea></p>
+                        <button id="update-btn" type="submit" class="btn btn-success btn-default" data-dismiss="modal" onClick="updateReport(); window.location.reload(true);" style="text-align: center; display:none;"><span class="glyphicon glyphicon-check"></span> Update Record</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger btn-default pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

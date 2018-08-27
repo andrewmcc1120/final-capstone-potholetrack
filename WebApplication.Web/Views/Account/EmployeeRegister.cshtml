@@ -1,0 +1,62 @@
+﻿@model WebApplication.Web.Models.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+@{
+    <script>
+        $(document).ready(function () {
+            $('#employee-signup').remove();
+        });
+        $('#login').remove();
+        $('#logout').remove();
+        $('#nav-register').remove();
+        $('#employee-btn').remove();
+
+    </script>
+}
+
+<h2 class="register-title">Register As An Employee</h2>
+<p class="register-desc">Fill out this form to register as a City Pothole Inspector!!</p>
+
+<form id="register" asp-action="register" asp-controller="account">
+    <div class="form-field">
+        <input asp-for="UserName" />
+        <label asp-for="UserName"></label>
+        <span class="text-danger" asp-validation-for="UserName"></span>
+    </div>
+
+    <div class="form-field">
+        <input asp-for="FirstName" />
+        <label asp-for="FirstName"></label>
+        <span class="text-danger" asp-validation-for="FirstName"></span>
+    </div>
+    <div class="form-field">
+        <input asp-for="LastName" />
+        <label asp-for="LastName"></label>
+        <span class="text-danger" asp-validation-for="LastName"></span>
+    </div>
+    <div class="form-field">
+        <input asp-for="Email" />
+        <label asp-for="Email"></label>
+        <span class="text-danger" asp-validation-for="Email"></span>
+    </div>
+    <div class="form-field">
+        <input asp-for="PhoneNumber" />
+        <label asp-for="PhoneNumber"></label>
+        <span class="text-danger" asp-validation-for="PhoneNumber"></span>
+    </div>
+    <div class="form-field">
+        <input asp-for="Password" />
+        <label asp-for="Password"></label>
+        <span class="text-danger" asp-validation-for="Password"></span>
+    </div>
+    <div class="form-field">
+        <input asp-for="ConfirmPassword" />
+        <label asp-for="ConfirmPassword"></label>
+        <span class="text-danger" asp-validation-for="ConfirmPassword"></span>
+    </div>
+    <input type="submit" value="Create Account" />
+
+</form>
+

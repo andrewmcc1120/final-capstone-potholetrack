@@ -1,0 +1,342 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+    background-color: black;
+    cursor: default;
+}
+
+
+ /*Navigation Bar*/
+ .navbar {
+     background: linear-gradient(rgba(78, 96, 106, 0.8), rgba(0, 0, 0, .8));
+ }
+
+
+/** Map section start **/
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 499px) {
+    /* Hide captions */
+}
+
+.center-image {
+    text-align: center;
+}
+
+#map {
+    height: 500px;
+    margin-top: 25px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+#map-break {
+    padding-top: 50px;
+}
+
+/** Map Section End **/
+
+/**  Register.cshtml  **/
+
+h2.register-title {
+    color:aliceblue;
+    text-align: center;
+}
+
+p.register-desc {
+    color:goldenrod;
+    text-align: center;
+}
+
+.field-validation-error {
+    font-weight:bold;
+}
+
+#register label {
+   color:aliceblue;
+   padding-left:1.3rem;
+}
+
+div.form-field {
+    display:block;
+    margin-bottom:1.2rem;
+}
+
+/** Register End **/
+
+
+/** Home page start **/
+
+li > #login, #logout {
+    cursor: pointer;
+}
+
+#about {
+    color: aliceblue;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#p-about {
+    text-align: center;
+    padding: 30px;
+}
+
+#report-title {
+    text-align: center;
+    color: aliceblue;
+    padding-top: 100px;
+    padding-bottom: 50px;
+}
+
+.main-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 6.25%;
+    padding-right: 6.25%;
+    color: aliceblue;
+    padding-bottom: 30px;
+}
+
+.main-report {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    font-size: 1em;
+    height: auto;
+}
+
+.report-number {
+    font-size: 4em;
+    font-weight: bold;
+    color: goldenrod;
+}
+
+#month-count {
+    margin-right: 30%;
+}
+
+#total-count {
+    margin-left: 30%;
+}
+
+/** Home page end **/
+
+
+/** Modal start **/
+
+.modal-header, h4, .close {
+    background-color: #767676;
+    color: aliceblue !important;
+    text-align: center;
+    font-size: 30px;
+    cursor:default;
+}
+
+.modal-header {
+    padding: 35px 50px;
+}
+
+.modal-body {
+    padding: 40px 50px;
+    color: aliceblue;
+    background-color: #767676;
+    cursor: default;
+}
+
+.modal-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: aliceblue;
+    background-color: #767676;
+}
+
+.hidden {
+    display: none;
+}
+
+/** Modal End **/
+
+
+/** View Profile start **/
+
+#profile-title {
+    color: aliceblue;
+    text-align: center;
+}
+
+.profile-welcome {
+    color: aliceblue;
+    text-align: center;
+}
+
+strong#user-name {
+    color: goldenrod;
+}
+
+.user-data {
+    color: aliceblue;
+    font-weight: bold;
+    margin-top: 55px;
+    margin-bottom: 45px;
+}
+
+strong#user-data {
+    color: goldenrod;
+    margin: 15px;
+}
+
+/** View Profile end **/
+
+
+/** Employee view start **/
+
+#employee-title {
+    color: aliceblue;
+    text-align: center;
+    font-weight: bolder;
+}
+
+#employee-welcome {
+    color: goldenrod;
+    text-align:center;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+#pothole-table {
+    color: aliceblue;
+}
+
+#table-data {
+    color: black;
+    background-color: white;
+}
+
+.legend-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 1%;
+    padding-right: 3%;
+}
+
+.table-wrapper-scroll-y {
+    display: block;
+    max-height: 200px;
+    max-width: 100%;
+    overflow-y: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+/** Employee View end **/
+
+/** Index page parallax start **/
+
+#parallax1 {
+    background-image: linear-gradient(to left bottom, rgba(255, 255, 255, 0.6), rgba(78, 96, 106, 0.6)), url(../images/ohio-pothole.jpg);
+    min-height: 600px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#parallax2 {
+    background-image: linear-gradient(to right bottom, rgba(78, 96, 106, 0.6), rgba(255, 255, 255, 0.6)), url(../images/lots-of-potholes.jpg);
+    min-height: 600px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#parallax3 {
+    background-image: linear-gradient(to left bottom, rgba(255, 255, 255, 0.60), rgba(0, 0, 0, 0.55)), url(../images/pothole-heart.jpg);
+    min-height: 600px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/** Index page parallax end **/
+
+/** Heading animation start **/
+
+.heading-primary {
+    text-align: center;
+    color: aliceblue;
+    text-transform: uppercase;
+    backface-visibility: hidden;
+    margin-bottom: 60px;
+    text-shadow: 2px 2px 4px black;
+}
+
+.heading-primary-main {
+    display: block;
+    font-size: 40px;
+    font-weight: 400;
+    letter-spacing: 8px;
+    animation-name: moveInLeft;
+    animation-duration: 1s;
+    animation-timing-function: ease-out;
+    margin-top: 200px;
+}
+
+.heading-primary-sub {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding-top: 20px;
+    animation: moveInRight 1s ease-out;
+}
+
+@keyframes moveInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+
+    80% {
+        transform: translateX(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(0);
+    }
+}
+
+@keyframes moveInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    80% {
+        transform: translateX(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(0);
+    }
+}
+@media screen and (max-width: 768px) {
+
+    #th-lat-long,
+    #th-date-created,
+    #th-report-count,
+    .table-lat-long,
+    .table-date-created,
+    .table-report-count {
+        display: none;
+    }
+}

@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PotholeTrack</title>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="~/home/index#map-break"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                    <li><a id="profile" asp-area="" asp-controller="Account" asp-action="ViewProfile">Profile</a></li>
+                    <li><a id="employee-btn" asp-area="" asp-controller="Home" asp-action="Employee">Employee</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a style="display:none;" id="logout"><span class="glyphicon glyphicon-log-out"></span><strong> Log-Out</strong></a></li>
+                    <li><a style="display:none;" id="nav-register" asp-controller="Account" asp-action="Register"><span class="glyphicon glyphicon-user"></span><strong> Sign Up</strong></a></li>
+                    <li><a style="display:none;" id="login" data-toggle="modal" data-target="#loginmodal"><span class="glyphicon glyphicon-log-in"></span><strong> Login</strong></a></li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+    <form name="logout" asp-action="logoff" asp-controller="account" style="display:none;"></form>
+
+    <div class="container">
+        <!-- Login Modal -->
+        <div class="modal fade" id="loginmodal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form asp-action="login" asp-controller="account" method="post">
+                            <div class="form-group">
+                                <label for="usrname"><span class="glyphicon glyphicon-user"></span> Username</label>
+                                <input class="form-control" type="text" data-val="true" data-val-required="The Username field is required." id="UserName" name="UserName" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="psw"><span class="glyphicon glyphicon-eye-open"></span> Password</label>
+                                <input class="form-control" type="password" data-val="true" data-val-length="The Password must be at least 6 characters long." data-val-length-max="100" data-val-length-min="6" data-val-required="The Password field is required." id="Password" name="Password">
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block"><span class="glyphicon glyphicon-off"></span> Login</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                        <p>Not a member? <a class="btn btn-primary" asp-action="register" asp-controller="account">Sign Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="body-content">
+
+        @RenderBody()
+        <hr />
+        @{
+            if ((bool)ViewData["loggedIn"])//IF YOU ARE LOGGED IN
+            {
+                <script>
+                    document.querySelector('#logout').setAttribute('style', 'display:block;');
+                    document.querySelector('#profile').setAttribute('style', 'display:block;');
+
+                    $('#login').remove();
+                    $('#nav-register').remove();
+                    $(document).ready(function () {
+                        $('#employee-signup').remove();
+
+                    });
+
+
+                </script>
+            }
+            else//OTHERWISE
+            {
+                <script>
+                    document.querySelector('#nav-register').setAttribute('style', 'display:block;');
+                    document.querySelector('#login').setAttribute('style', 'display:block;');
+
+                    $('#employee-btn').remove();
+                    $('#logout').remove();
+                    $('#profile').remove();
+                </script>
+            }
+
+
+        }
+        <footer>
+            <p style="text-align: center; color: aliceblue;">&copy; 2018 - WebApplication.Web</p>
+        </footer>
+        <a style="display:none;" id="employee-signup" class="btn btn-dark pull-right" asp-action="employeeregister" asp-controller="account">Employee Sign Up</a>
+        @if ((bool)ViewData["loggedIn"])
+        {
+            <script>
+                document.querySelector('#employee-btn').setAttribute('style', 'display:block;');
+            </script>
+        }
+        else
+        {
+                <script>
+                    document.querySelector('#employee-signup').setAttribute('style', 'display:block;');
+
+                </script>
+        }
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+       </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <partial name="_CookieConsentPartial" />
+    <partial name="_ValidationScriptsPartial" />
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

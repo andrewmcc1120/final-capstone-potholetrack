@@ -1,0 +1,174 @@
+﻿@model Profile
+@{
+    ViewData["Title"] = "ViewProfile";
+    Random rnd = new Random();
+}
+
+<h2 id="profile-title">Your Profile</h2>
+
+<p class="profile-welcome">Welcome back <strong id="user-name">@Model.User.FirstName @Model.User.LastName</strong></p>
+
+
+@*this table is filled with the users information they provided upon signing up*@
+<div>
+    <table class="container user-data">
+        <tbody>
+            <tr>
+                <td>Username : <strong id="user-data">@Model.User.Username</strong></td>
+            </tr>
+            <tr>
+                <td>First Name : <strong id="user-data">@Model.User.FirstName</strong></td>
+            </tr>
+            <tr>
+                <td>Last Name : <strong id="user-data">@Model.User.LastName</strong></td>
+            </tr>
+            <tr>
+                <td>Email : <strong id="user-data">@Model.User.Email</strong></td>
+            </tr>
+            <tr>
+                <td>Phone Number : <strong id="user-data">@Model.User.PhoneNumber</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr />
+
+@*this table is a list of all the potholes that the user has submitted themselves*@
+<h3 style="text-align: center; color: aliceblue;">Here's all the reports you have submitted:</h3>
+<div class="container-fluid">
+    <table id="pothole-table-profile" class="table table-bordered table-sm" cellspacing="0" width="100%" style="color: white;">
+        <thead>
+            <tr>
+                <th class="th-sm" style="text-align: center;">
+                    Pothole Report #
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Location of the pothole (LatLong)
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Date Report Created
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+                </th>
+                <th class="th-sm" style="text-align: center;">
+                    Current Status
+                    <i class="fa fa-sort float-right" aria-hidden="true"></i>
+            </tr>
+        </thead>
+
+        @*here we are talking to the database to retrieve all the information to each pothole based on the user.id*@
+        <tbody id="table-data">
+            @foreach (WebApplication.Web.Models.Account.Report report in Model.Reports)
+            {
+                if (report.Submitter == @Model.User.Id)
+                {
+
+                    <tr id="profile-row@(report.Id)">
+
+                        <td style="text-align: center;">@report.ReportNumber</td>
+                        <td style="text-align: center;"><a data-target="#potholemap" data-toggle="modal" onclick="potholeMap(@report.Lattitude, @report.Longitude)" style="cursor: pointer;"> @report.Lattitude, @report.Longitude </a></td>
+                        <td style="text-align: center;">@report.DateCreated</td>
+
+                        @if (report.Status == 4)
+                        {
+                            <td style="background-color: green; text-align: center;">Fixed!</td>
+
+                        }
+                        else if (report.Status == 3 || report.Status == 2)
+                        {
+                            <td style="background-color: orange; text-align: center;">Waiting for Repair!</td>
+                        }
+                        else
+                        {
+                            <td style="background-color: red; text-align: center;">Waiting for Inspection!</td>
+                        }
+                    </tr>
+
+                    <script>
+                    document.querySelector('#profile-row@(report.Id)').addEventListener('click',
+                        function () {
+                            $('#datecreated', $('#potholemap')).val('@report.DateInspected.ToShortDateString()');
+                            @{
+                                string statText = "";
+
+                                if (report.Status == 1)
+                                {
+                                    statText = "Waiting for inspection!";
+                                }
+                                else if (report.Status == 4)
+                                {
+                                    statText = "Fixed!";
+                                }
+                                else
+                                {
+                                    statText = "Waiting for repair!";
+
+                                }
+
+                             }
+                            $('#status', $('#potholemap')).val('@statText');
+                            $('#severity', $('#potholemap')).val('@report.Severity');
+                            $('#reportcount', $('#potholemap')).val('@report.ReportCount');
+                        });
+                    </script>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@*this modal appears when the user clicks on the location (in the table) of each pothole*@
+<div class="modal fade" id="potholemap" tabindex="-1" role="dialog" aria-labelledby="Data!" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="Pothole Data">Here's your Location</h4>
+            </div>
+            <div class="modal-body">
+
+                <div style="text-align: center; padding-bottom: 40px">
+                    <div id="map"></div>
+                    <script>
+
+                        function potholeMap(lat, lng) {
+
+                            let pothole = { lat, lng };
+                            let markerimage = '/images/constructioncone2.png';
+                            let map = new google.maps.Map(
+                                document.getElementById('map'),
+                                {
+                                    zoom: 16,
+                                    center: pothole,
+                                    styles: [
+                                        {
+                                            "featureType": "poi",
+                                            "stylers": [
+                                                { "visibility": "off" }
+                                            ]
+                                        }
+                                    ]
+                                });
+
+                            let marker = new google.maps.Marker({ position: pothole, icon: markerimage, map: map });
+
+
+                        }
+                    </script>
+
+                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbeqY7Px86Yip_ibuSnWdVnScfdE2NPQA&"
+                            async defer></script>
+
+                </div>
+                <p><span style="font-weight: bold">Date Report Created:</span> <input type="text" id="datecreated" readonly style="border: none; background-color: #767676; cursor: default;" /></p>
+                <p><span style="font-weight: bold">Current Status:</span> <input type="text" id="status" readonly style="border: none; background-color: #767676; cursor: default;" /></p>
+                <p><span style="font-weight: bold">Severity at time of inspection:</span> <input type="text" id="severity" readonly style="border: none; background-color: #767676; cursor: default;" /></p>
+                <p><span style="font-weight: bold">How many people have reported this pothole:</span> <input type="text" id="reportcount" readonly style="border: none; background-color: #767676; cursor: default;" /></p>
+                <a class="btn btn-group-lg btn-block btn-warning" href="https://drive.google.com/open?id=1Mtv98qnFfKbIh6WxVIwHa5RPbTOtGQDv" target="_blank"><span class="glyphicon glyphicon-alert"></span> Make A Claim</a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick='marker.setMap(null), marker = null' class="btn btn-danger btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Close</button>
+            </div>
+        </div>
+    </div>
+</div>

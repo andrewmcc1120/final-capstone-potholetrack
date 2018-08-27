@@ -1,0 +1,304 @@
+﻿@model IList<WebApplication.Web.Models.Account.Report>
+@{
+    ViewData["Title"] = "Home Page";
+    int totalCount = 0;
+    int yearCount = 0;
+    int monthCount = 0;
+    int currentUserID = (int)ViewData["currentUserID"];
+    List<int> userReportIds = (List<int>)ViewData["currentReportIDs"];
+    bool userFlag = false;
+}
+
+
+<div id="parallax1">
+    <div class="container">
+        <h1 class="heading-primary">
+            <span class="heading-primary-main">Pothole-track</span>
+            <span class="heading-primary-sub">tracking your cars worst enemies</span>
+        </h1>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<script type="text/javascript">
+    let map;
+    let marker = null;
+    let infowindow;
+    let messagewindow;
+    let markerimage = '/images/constructioncone2.png';
+    let lat;
+    let long;
+    let potholeData;
+    let currentUserID = @currentUserID;
+    let point;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 41.499252, lng: -81.694492 },
+            zoom: 14,
+            styles: [
+                {
+                    "featureType": "poi",
+                    "stylers": [
+                        { "visibility": "off" }
+                    ]
+                }
+            ]
+        });
+
+        @foreach (WebApplication.Web.Models.Account.Report report in Model)
+        {
+            if (report.Status == 4)
+            {
+                totalCount++;
+
+                if (report.DateRepaired.Year == (DateTime.Now.Year))
+                {
+                    yearCount++;
+                }
+
+                if (report.DateRepaired.Year == (DateTime.Now.Year) && report.DateRepaired.Month == (DateTime.Now.Month))
+                {
+                    monthCount++;
+                }
+            }
+        <text>
+             point = new google.maps.LatLng(
+                parseFloat(@report.Lattitude),
+                parseFloat(@report.Longitude));
+
+            if (@report.Status === 2 || @report.Status === 3) {
+
+                let pothole@(report.Id) = new google.maps.Marker({
+                    map: map,
+                    position: point,
+                    icon: markerimage
+                });
+
+                google.maps.event.addListener(pothole@(report.Id), 'click', function() {
+                    @if ( userReportIds.Contains(report.Id)) //IF THE USER SUBMITTED A REPORT, HIDE BUTTON
+                    {
+                        <text>
+                        $('#potholedata').on('shown.bs.modal', function (e) {
+
+                            console.dir(e.currentTarget);
+                            $('#addReport').addClass('hidden');
+                            $(this).on('hide.bs.modal', () => {
+                                $('#addReport').removeClass('hidden');
+
+                            });
+                          });
+                    </text>
+                    }
+                    else   //OTHERWISE LET THEM ADD A REPORT
+
+                    {
+                            <text>
+                    $('#potholedata').on('shown.bs.modal', function (e) {
+                        document.querySelector('#addReport').setAttribute('style', 'display:block;');
+                        document.querySelector('#addReport').addEventListener('click', (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            $('#addReport').click();
+                            document.querySelector('#addReport').remove();
+
+                        });
+                        $('#addReport').removeClass('hidden');
+
+                    });
+                            </text>
+                    }
+
+                    $('#datecreated', $('#potholedata')).val('@report.DateCreated.ToShortDateString()');
+                    $('#severity', $('#potholedata')).val('@report.Severity');
+                    $('#reportcount', $('#potholedata')).val('@report.ReportCount');
+                    $('#p-id', $('#potholedata')).val(@(report.Id));
+                    $('#s-id', $('#potholedata')).val(@(report.Submitter));
+                    $("#potholedata").modal();
+                });
+            }
+
+        </text>
+    }
+
+        infowindow = new google.maps.InfoWindow({
+            content: document.getElementById('potholereport')
+        });
+
+        messagewindow = new google.maps.InfoWindow({
+            content: document.getElementById('message')
+        });
+
+        google.maps.event.addListener(map,
+            'click',
+            function(event) {
+
+                if ('@((bool)ViewData["loggedIn"])' === 'True' &&
+                    event.latLng.lng() >= -81.820158 &&
+                    event.latLng.lng() <= -81.535962 &&
+                    event.latLng.lat() <= 41.579773 &&
+                    event.latLng.lat() >= 41.427390) {
+
+                    if (marker === null) {
+                        marker = new google.maps.Marker({
+                            position: event.latLng,
+                            map: map,
+                            icon: markerimage
+                    });
+                    } else {
+                        marker.setPosition(event.latLng);
+                    };
+
+                    google.maps.event.addListener(marker,
+                        'click',
+                        function() {
+                            infowindow.open(map, marker);
+                            let elem = document.getElementById('potholereport');
+                            elem.style.display = 'block';
+                        });
+
+                } else if (!(event.latLng.lng() >= -81.820158 &&
+                        event.latLng.lng() <= -81.535962 &&
+                        event.latLng.lat() <= 41.579773 &&
+                        event.latLng.lat() >= 41.427390)) {
+                         alert('Invalid Report location!');
+                        }
+            });
+    }
+
+
+
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbeqY7Px86Yip_ibuSnWdVnScfdE2NPQA&callback=initMap"
+        async defer></script>
+
+
+
+
+@*this is the pop up that appears when a user is adding a new pothole*@
+<div id="potholereport" style="display: none">
+    <p>Report a pothole here?</p>
+    <p>
+        Severity <select id="marker-severity">
+            <option value=1>1 - Not too bad.</option>
+            <option value=2>2 - This is an issue.</option>
+            <option value=3>3 - I lost a hubcap.</option>
+
+        </select>
+    </p>
+    <input type='button' value='Save' onclick='saveData()' data-toggle="modal" data-target="#reportsaved" />
+</div>
+
+
+
+@*the div that holds the map*@
+<div id="map-break">
+    <div id="map" class="img-responsive" style="padding-top:25px"></div>
+</div>
+
+@*the modal that appears after a user has clicked "save" for a new pothole*@
+<div class="modal fade" id="reportsaved" tabindex="-1" role="dialog" aria-labelledby="Thanks!" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="ReportSaved">Report Saved</h4>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center;">Thanks for your submission! A city worker will be dispatched to inspect this pothole shortly!</p>
+                <p style="text-align: center;">Even though your report won't show up on the map until it has been verified, don't worry!  We're on the job!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick='marker.setMap(null), marker = null' class="btn btn-danger btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*the modal that appears when a user interacts with an already existing pothole*@
+<div class="modal fade" id="potholedata" tabindex="-1" role="dialog" aria-labelledby="Data!" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="Pothole Data">Pothole Data</h4>
+            </div>
+            <div class="modal-body">
+                <p><span style="font-weight: bold">Date Report Created:</span> <input type="text" id="datecreated" readonly style="border:none; background-color: #767676;" /></p>
+                <p><span style="font-weight: bold">Status:</span> Inspected and Awaiting Repair</p>
+                <p><span style="font-weight: bold">Severity at time of inspection:</span> <input type="text" id="severity" readonly style="border:none; background-color: #767676;" /></p>
+                <p><span style="font-weight: bold">How many people have reported this pothole:</span> <input type="text" id="reportcount" readonly style="border:none; background-color: #767676;" /></p>
+                <input id="s-id" style="display:none;" />
+                <form name="updateRecord" asp-controller="PotholeAPI" asp-action="AddCount" method="post">
+                    <input id="p-id" style="display:none;" />
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                @if ((bool)ViewData["loggedIn"] && (!userFlag))
+                {
+                    <button style="display:none;" id="addReport" type="button" onclick="incrementReportCount()" class="btn btn-primary btn-default" data-toggle="modal" data-target="#reportsaved" data-dismiss="modal">Add your Report</button>
+                }
+
+                <button type="button" class="btn btn-danger btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<div class="parallax" id="parallax2"></div>  @*this div holds an image for parallax scrolling*@
+<br />
+<br />
+<br />
+
+@*Here is the about section of the index page*@
+<div id="about" style="padding-bottom: 50px; border-bottom: white;">
+    <h1>Do you hate potholes?</h1>
+    <div>
+        <img src="~/images/pothole-dollar.jpg" class="img-circle img-responsive" style="max-height: 200px; padding-bottom: 20px; padding-top: 20px;" />
+    </div>
+    <div>
+        <p id="p-about">
+            So do we!! That is why we have created this pothole tracking application. Living in Cleveland, we have to batle with these things on a daily
+            basis. Protect your car AND your sanity by signing up <strong>FOR FREE</strong> and never hit a pothole again!!
+        </p>
+    </div>
+    <br />
+    <div>
+        <p>You don't believe us? Read the testimonials from "real" users!!!</p>
+        <ul id="testimonials">
+            <li>Mary says: "This app is totally okay I guess."</li>
+            <li>Tony says: "It's alright, I've used it a couple times."</li>
+            <li>Josh says: "If you like to be confused than you should attempt to use this."</li>
+            <li>Natalie says: "This is the biggest pile of crap application...I mean, it's great I love it!"</li>
+            <li>Justin says: "This is the best application ever made by man kind."</li>
+            <li>Donny Trump says: "This is the best ever, you know it, I know it, everybody knows it."</li>
+        </ul>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<div class="parallax" id="parallax3"></div>  @*this div holds an image for parallax scrolling*@
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+@*here we show how many potholes have been repaired broken down by month, year, total*@
+<h1 id="report-title">Your tax dollars at work!</h1>
+<br />
+<br />
+<div class="main-bottom col-offset">
+    <div class="main-report" id="month-count"><p class="report-number">@monthCount</p> <p>Potholes filled this month!</p></div>
+    <div class="main-report" id="year-count"><p class="report-number">@yearCount</p> <p>Potholes filled this year!</p></div>
+    <div class="main-report" id="total-count"><p class="report-number">@totalCount</p> <p>Potholes filled total!</p></div>
+</div>
